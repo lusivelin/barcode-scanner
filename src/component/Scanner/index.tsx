@@ -1,13 +1,43 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import useBarCodeScanner from "../../hooks/services/useBarCodeScanner";
 import { container } from "./style";
+import ScanResult from "../ScanResult";
+import { useScreen } from "usehooks-ts";
+import useScannedState from "../../hooks/state/useScannedState";
 
-const Scanner = (props: { onDetected: any }) => {
+const Scanner = () => {
   const targetRef = useRef<HTMLDivElement>(null);
-  const { barCode } = useBarCodeScanner(targetRef);
-  console.log({barCode})
+  const screen = useScreen();
+  const { scanResult } = useBarCodeScanner(targetRef);
+  const { scanned, updateScanned } = useScannedState();
 
-  return <div ref={targetRef} className={container()}></div>;
+  useEffect(() => {
+    if (scanResult?.imgUrl) {
+      updateScanned(true);
+    }
+
+    return () => {
+      updateScanned(undefined);
+    };
+  }, [scanResult, updateScanned]);
+
+  return (
+    <>
+      {scanned && <img src={scanResult?.imgUrl} />}
+      <div
+        ref={targetRef}
+        className={container({
+          css: {
+            "& video, canvas": {
+              width: screen?.width,
+              height: screen?.height,
+            },
+          },
+        })}
+      ></div>
+      <ScanResult scanResult={scanResult} />
+    </>
+  );
 };
 
 export default Scanner;

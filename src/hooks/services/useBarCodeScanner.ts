@@ -1,9 +1,16 @@
 // @ts-ignore
 import Quagga from "quagga";
 import { QuaggaJSStatic } from "@ericblade/quagga2";
-import { RefObject, useCallback, useLayoutEffect, useState } from "react";
+import {
+  RefObject,
+  useCallback,
+  useLayoutEffect,
+  useEffect,
+  useState,
+} from "react";
 import { ResultType } from "../../component/ScanResult";
-import { useScreen } from "usehooks-ts";
+import { useScreen, useWindowSize } from "usehooks-ts";
+import useScannedState from "../state/useScannedState";
 
 const BarCodeScanner = Quagga as QuaggaJSStatic;
 
@@ -26,16 +33,20 @@ function getMedianOfCodeErrors(decodedCodes: any[]) {
 
 const useBarCodeScanner = (target: RefObject<HTMLDivElement>) => {
   const screen = useScreen();
+  const { updateScanned } = useScannedState()
 
-  const [barCode, setBarCode] = useState<ResultType>();
+  const [scanResult, setScanResult] = useState<ResultType>();
 
   const errorCheck = useCallback((result: ResultType) => {
     const err = getMedianOfCodeErrors(result.codeResult.decodedCodes);
-    // if Quagga is at least 75% certain that it read correctly, then accept the code.
-    if (err < 0.25) {
-      if(!barCode){
-        setBarCode(result);
-        BarCodeScanner.pause()
+    // if Quagga is at least 88% certain that it read correctly, then accept the code.
+    if (err < 0.12) {
+      if (!scanResult) {
+        const canvas = BarCodeScanner.canvas.dom.image;
+        var img = canvas.toDataURL("image/png");
+        setScanResult({ ...result, imgUrl: img });
+        updateScanned(false)
+        // BarCodeScanner.stop();
       }
     }
   }, []);
@@ -66,8 +77,8 @@ const useBarCodeScanner = (target: RefObject<HTMLDivElement>) => {
             drawingCtx.fillStyle = "rgba(255, 255, 255, 0.5)";
             drawingCtx.fill();
 
-            if(result.codeResult && result.codeResult.code){
-              console.log("remove box")
+            if (result.codeResult && result.codeResult.code) {
+              console.log("remove box");
             }
             BarCodeScanner.ImageDebug.drawPath(
               box,
@@ -78,7 +89,6 @@ const useBarCodeScanner = (target: RefObject<HTMLDivElement>) => {
                 lineWidth: 1,
               }
             );
-           
           });
       }
 
@@ -107,14 +117,14 @@ const useBarCodeScanner = (target: RefObject<HTMLDivElement>) => {
     }
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     BarCodeScanner.init(
       {
         inputStream: {
           type: "LiveStream",
           constraints: {
-            width: screen?.width,
-            height: screen?.height,
+            width: screen?.availWidth,
+            height: screen?.availHeight,
             facingMode: "environment",
           },
           target: target?.current as Element,
@@ -122,31 +132,11 @@ const useBarCodeScanner = (target: RefObject<HTMLDivElement>) => {
         locator: {
           patchSize: "large",
           halfSample: true,
-          debug: {
-            showCanvas: true,
-            showPatches: false,
-            showFoundPatches: false,
-            showSkeleton: false,
-            showLabels: false,
-            showPatchLabels: false,
-            showRemainingPatchLabels: false,
-            boxFromPatches: {
-              showTransformed: true,
-              showTransformedBox: true,
-              showBB: true,
-            },
-          },
         },
         numOfWorkers: 4,
         frequency: 10,
         decoder: {
-          readers: ["ean_reader"],
-          debug: {
-            drawBoundingBox: true,
-            showFrequency: true,
-            drawScanline: true,
-            showPattern: true,
-          },
+          readers: ["code_128_reader", "ean_reader"],
         },
         locate: true,
       },
@@ -170,7 +160,7 @@ const useBarCodeScanner = (target: RefObject<HTMLDivElement>) => {
     };
   }, [target]);
 
-  return { barCode, target };
+  return { scanResult, target };
 };
 
 export default useBarCodeScanner;

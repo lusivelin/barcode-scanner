@@ -12,6 +12,7 @@ specifiers:
   typescript: ^4.9.3
   usehooks-ts: ^2.9.1
   vite: ^4.1.0
+  zustand: ^4.3.3
 
 dependencies:
   '@ericblade/quagga2': 1.8.2
@@ -20,6 +21,7 @@ dependencies:
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   usehooks-ts: 2.9.1_biqbaboplfbrettd7655fr4n2y
+  zustand: 4.3.3_react@18.2.0
 
 devDependencies:
   '@types/react': 18.0.27
@@ -941,6 +943,14 @@ packages:
       punycode: 2.3.0
     dev: false
 
+  /use-sync-external-store/1.2.0_react@18.2.0:
+    resolution: {integrity: sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.2.0
+    dev: false
+
   /usehooks-ts/2.9.1_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-2FAuSIGHlY+apM9FVlj8/oNhd+1y+Uwv5QNkMQz1oSfdHk4PXo1qoCw9I5M7j0vpH8CSWFJwXbVPeYDjLCx9PA==}
     engines: {node: '>=16.15.0', npm: '>=8'}
@@ -999,3 +1009,19 @@ packages:
     optionalDependencies:
       fsevents: 2.3.2
     dev: true
+
+  /zustand/4.3.3_react@18.2.0:
+    resolution: {integrity: sha512-x2jXq8S0kfLGNwGh87nhRfEc2eZy37tSatpSoSIN+O6HIaBhgQHSONV/F9VNrNcBcKQu/E80K1DeHDYQC/zCrQ==}
+    engines: {node: '>=12.7.0'}
+    peerDependencies:
+      immer: '>=9.0'
+      react: '>=16.8'
+    peerDependenciesMeta:
+      immer:
+        optional: true
+      react:
+        optional: true
+    dependencies:
+      react: 18.2.0
+      use-sync-external-store: 1.2.0_react@18.2.0
+    dev: false

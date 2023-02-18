@@ -1,23 +1,39 @@
+import Portal from "../Portal";
+import { body, content, container, header, barCodeImage, searchSvg, barCodeResult } from "./style";
+import { SearchSymbol } from "../Icon";
+import useScannedState from "../../hooks/state/useScannedState";
+
 export type ResultType = {
+  imgUrl?: string;
   codeResult: {
     format: string;
     code: string | null;
-    decodedCodes: any[]
+    decodedCodes: any[];
   };
 };
 
-const Result = ({ result }: { result: ResultType }) => (
-  <pre
-    // style={{
-    //   position: "absolute",
-    //   top: -50,
-    //   right: -150,
-    //   overflow: "auto",
-    //   height: "100vh"
-    // }}
-  >
-    {JSON.stringify(result, undefined, 2)}
-  </pre>
-);
+const ScanResult = ({ scanResult }: { scanResult?: ResultType }) => {
+  const { scanned, updateScanned } = useScannedState()
+  return (
+    <Portal>
+      <div className={container()}>
+        <div className={content()}>
+          <header className={header()}>
+            <p>1 item</p>
+            <span onClick={() => updateScanned(false)}>Clear</span>
+          </header>
+          <main className={body()}>
+            <img className={barCodeImage()} src="/barcode-symbol.png" alt="Barcode Symbol"/>
+            <div className={barCodeResult()}>
+              <p>{scanned ? scanResult?.codeResult?.format.split("_").join("-").toUpperCase() : "EAN-13"}</p>
+              <span>{scanned ? scanResult?.codeResult?.code :"XXXXXXXXXXXXX"}</span>
+            </div>
+            <SearchSymbol className={searchSvg()} />
+          </main>
+        </div>
+      </div>
+    </Portal>
+  );
+};
 
-export default Result;
+export default ScanResult;
