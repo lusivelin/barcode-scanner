@@ -17,7 +17,7 @@ const Scanner = () => {
     }
 
     return () => {
-      updateScanned(undefined);
+      updateScanned(false);
     };
   }, [scanResult, updateScanned]);
 
